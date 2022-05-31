@@ -60,7 +60,7 @@ def draw(draw_info, sorting_algorithm_name):
                                      draw_info.BLACK)
     draw_info.window.blit(controls, (draw_info.width / 2 - controls.get_width() / 2, 35))
 
-    sorting = draw_info.LARGE_FONT.render("B - Bubble sort | I - Insertion sort", 1, draw_info.BLACK)
+    sorting = draw_info.LARGE_FONT.render("B - Bubble sort | I - Insertion sort | Q - Quick sort", 1, draw_info.BLACK)
     draw_info.window.blit(sorting, ((draw_info.width / 2 - sorting.get_width() / 2), 60))
 
     draw_lst(draw_info)
@@ -69,7 +69,6 @@ def draw(draw_info, sorting_algorithm_name):
 
 def draw_lst(draw_info, color_positions={}, clear_bg=False):
     lst = draw_info.lst
-    #print(lst)
 
     if clear_bg:
         clear_rect = (draw_info.SIDE_PAD // 2, draw_info.TOP_PAD, draw_info.width - draw_info.SIDE_PAD,
@@ -97,9 +96,6 @@ def bubble_sort(draw_info):
                 lst[j], lst[j + 1] = lst[j + 1], lst[j]
                 draw_lst(draw_info, {j: draw_info.RED, j + 1: draw_info.GREEN}, True)
                 yield True
-            # else:
-            #     draw_lst(draw_info)
-            #     yield  True
     return lst
 
 
@@ -109,36 +105,100 @@ def insertion_sort(draw_info):
         key = lst[i]
         draw_lst(draw_info, {i: draw_info.RED}, True)
         yield True
-        j = i -1
-        while j>=0 and key < lst[j]:
-            lst[j+1] = lst[j]
-            #draw_lst(draw_info, {j + 1: draw_info.RED, j: draw_info.GREEN}, True)
-
+        j = i - 1
+        while j >= 0 and key < lst[j]:
+            lst[j + 1] = lst[j]
             j -= 1
-            #draw_lst(draw_info, {j + 1: draw_info.RED, j: draw_info.GREEN}, True)
 
-        lst[j+1] =key
-        draw_lst(draw_info, {j+1:draw_info.GREEN},True)
+        lst[j + 1] = key
+        draw_lst(draw_info, {j + 1: draw_info.GREEN}, True)
         yield True
     return lst
+
+
+# This function is same in both iterative and recursive
+def partition(lst, l, h):
+    i = (l - 1)
+    x = lst[h]
+
+    for j in range(l, h):
+        if lst[j] <= x:
+            # increment index of smaller element
+            i = i + 1
+            lst[i], lst[j] = lst[j], lst[i]
+
+    lst[i + 1], lst[h] = lst[h], lst[i + 1]
+    return (i + 1)
+
+
+# Function to do Quick sort
+# lst[] --> lstay to be sorted,
+# l  --> Starting index,
+# h  --> Ending index
+def quick_sort(draw_info, l=0, h=49):
+    # Create an auxiliary stack
+    lst = draw_info.lst
+    size = h - l + 1
+    stack = [0] * (size)
+
+    # initialize top of stack
+    top = -1
+
+    # push initial values of l and h to stack
+    top = top + 1
+    stack[top] = l
+    top = top + 1
+    stack[top] = h
+
+    # Keep popping from stack while is not empty
+    while top >= 0:
+
+        # Pop h and l
+        h = stack[top]
+        top = top - 1
+        l = stack[top]
+        top = top - 1
+
+        # Set pivot element at its correct position in
+        # sorted lst
+        p = partition(lst, l, h)
+        draw_lst(draw_info, {h: draw_info.RED, p: draw_info.GREEN}, True)
+        yield True
+
+        # If there are elements on left side of pivot,
+        # then push left side to stack
+        if p - 1 > l:
+            top = top + 1
+            stack[top] = l
+            top = top + 1
+            stack[top] = p - 1
+
+        # If there are elements on right side of pivot,
+        # then push right side to stack
+        if p + 1 < h:
+            top = top + 1
+            stack[top] = p + 1
+            top = top + 1
+            stack[top] = h
 
 
 def main():
     running = True
     clock = pygame.time.Clock()
-    n = 100
+    n = 50
     min_val = 2
     max_val = 200
     lst = generate_lst(n, min_val, max_val)
     draw_info = DrawInformation(800, 600, lst)
     sorting = False
-    #ascending = True
+    # ascending = True
     # descending = False
+    speed = 10
     sorting_algorithm = bubble_sort
     sorting_algorithm_name = "Bubble sort"
     sorting_algorithm_generator = None
     while running:
-        clock.tick(60)
+        clock.tick(speed)
 
         if sorting:
             try:
@@ -166,6 +226,13 @@ def main():
             elif event.key == pygame.K_i and not sorting:
                 sorting_algorithm = insertion_sort
                 sorting_algorithm_name = "Insertion Sort"
+            elif event.key == pygame.K_q and not sorting:
+                sorting_algorithm = quick_sort
+                sorting_algorithm_name = "Quick sort"
+            elif event.key == pygame.K_UP:
+                speed += 2
+            elif event.key == pygame.K_DOWN and speed > 2:
+                speed -= 2
 
             # elif event.key == pygame.K_a and not sorting:
             #     ascending = True
@@ -173,6 +240,7 @@ def main():
             #     ascending = False
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()
