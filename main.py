@@ -20,7 +20,7 @@ class DrawInformation:
         (218, 112, 214)
     ]
 
-    FONT = pygame.font.SysFont('comicsans', 20)
+    FONT = pygame.font.SysFont('comicsans', 18)
     LARGE_FONT = pygame.font.SysFont("comicsans", 25)
 
     def __init__(self, width, height, lst):
@@ -49,10 +49,6 @@ def generate_lst(n, min_val, max_val):
 
 def draw(draw_info, sorting_algorithm_name):
     draw_info.window.fill(draw_info.BACKGROUND_COLOR)
-    # if ascending == True:
-    #     order = "Ascending"
-    # else:
-    #     order = "Descending"
     title = draw_info.LARGE_FONT.render(f"{sorting_algorithm_name}", 1, draw_info.GREEN)
     draw_info.window.blit(title, (draw_info.width / 2 - title.get_width() / 2, 5))
 
@@ -60,7 +56,7 @@ def draw(draw_info, sorting_algorithm_name):
                                      draw_info.BLACK)
     draw_info.window.blit(controls, (draw_info.width / 2 - controls.get_width() / 2, 35))
 
-    sorting = draw_info.LARGE_FONT.render("B - Bubble sort | I - Insertion sort | Q - Quick sort", 1, draw_info.BLACK)
+    sorting = draw_info.FONT.render(f"B - Bubble sort | I - Insertion sort | Q - Quick sort | Up -Incr speed | Down - Decr speed", 1, draw_info.BLACK)
     draw_info.window.blit(sorting, ((draw_info.width / 2 - sorting.get_width() / 2), 60))
 
     draw_lst(draw_info)
@@ -92,7 +88,7 @@ def bubble_sort(draw_info):
         for j in range(len(lst) - i - 1):
             num1 = lst[j]
             num2 = lst[j + 1]
-            if num1 > num2:  ###)and #ascending) or (num1 < num2 and ascending == False):
+            if num1 > num2:
                 lst[j], lst[j + 1] = lst[j + 1], lst[j]
                 draw_lst(draw_info, {j: draw_info.RED, j + 1: draw_info.GREEN}, True)
                 yield True
@@ -191,8 +187,6 @@ def main():
     lst = generate_lst(n, min_val, max_val)
     draw_info = DrawInformation(800, 600, lst)
     sorting = False
-    # ascending = True
-    # descending = False
     speed = 10
     sorting_algorithm = bubble_sort
     sorting_algorithm_name = "Bubble sort"
@@ -234,10 +228,7 @@ def main():
             elif event.key == pygame.K_DOWN and speed > 2:
                 speed -= 2
 
-            # elif event.key == pygame.K_a and not sorting:
-            #     ascending = True
-            # elif event.key == pygame.K_d and sorting == False:
-            #     ascending = False
+
 
     pygame.quit()
 
